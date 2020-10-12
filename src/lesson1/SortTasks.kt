@@ -2,6 +2,9 @@
 
 package lesson1
 
+import java.io.File
+import java.lang.StringBuilder
+
 /**
  * Сортировка времён
  *
@@ -32,8 +35,20 @@ package lesson1
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
+//Трудоемкость - O(N*log(N))
+//Ресурсоемкость - O(N)
 fun sortTimes(inputName: String, outputName: String) {
-    TODO()
+    val time = mutableListOf<String>()
+    File(inputName).forEachLine { time.add(it) }
+    File(outputName).bufferedWriter().use { writer ->
+        time.sortedBy {
+            val clockToTimeOfDay = it.split(" ")
+            (clockToTimeOfDay[0].split(":")[0].toInt() % 12 * 60 * 60) +
+                    (clockToTimeOfDay[0].split(":")[1].toInt() * 60) + (clockToTimeOfDay[0].split(":")[2].toInt()) +
+                    (if (clockToTimeOfDay[1] == "AM") 0 else 43200)
+
+        }.forEach { writer.write(it + "\n") }
+    }
 }
 
 /**
@@ -62,9 +77,25 @@ fun sortTimes(inputName: String, outputName: String) {
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
+//Трудоемкость - O(N*log(N))
+//Ресурсоемкость - O(N)
 fun sortAddresses(inputName: String, outputName: String) {
-    TODO()
+    val addressesOfResidents = mutableMapOf<String, MutableSet<String>>()
+    File(inputName).forEachLine {
+        val (resident, address) = it.split(" - ")
+        addressesOfResidents.getOrPut(address) { mutableSetOf() }.add(resident)
+    }
+    val sb = StringBuilder()
+    addressesOfResidents.keys.sortedWith(compareBy<String> {
+        it.split(" ")[0]
+    }.thenBy { it.split(" ")[1].toInt() }
+    ).forEach {
+        sb.append("$it - ")
+        sb.append(addressesOfResidents[it]!!.sorted().joinToString(", ") + "\n")
+    }
+    return File(outputName).writeText(sb.toString())
 }
+
 
 /**
  * Сортировка температур

@@ -93,7 +93,7 @@ fun sortAddresses(inputName: String, outputName: String) {
         sb.append("$it - ")
         sb.append(addressesOfResidents[it]!!.sorted().joinToString(", ") + "\n")
     }
-    return File(outputName).writeText(sb.toString())
+    File(outputName).writeText(sb.toString())
 }
 
 
@@ -127,8 +127,33 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 99.5
  * 121.3
  */
+//Трудоемкость - O(N)
+//Ресурсоемкость - O(N)
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    val minLimit = 2730
+    val maxLimit = 7730
+    val tempArray = mutableListOf<Int>()
+    File(inputName).forEachLine {
+        tempArray.add(it.replace(".", "").toInt() + minLimit)
+    }
+    val sortedTemp = countingSort(tempArray.toIntArray(), maxLimit)
+    File(outputName).bufferedWriter().use { writer ->
+        sortedTemp.forEach {
+            writer.write(
+                when (it) {
+                    in 2730..2739 -> ("0." + (it - minLimit).toString()
+                        .last() + "\n"
+                            )
+                    in 2721..2729 -> ("-0." + (it - minLimit).toString()
+                        .last() + "\n"
+                            )
+                    else -> ((it - minLimit).toString()
+                        .take((it - minLimit).toString().lastIndex) + "." + (it - minLimit).toString()
+                        .last() + "\n")
+                }
+            )
+        }
+    }
 }
 
 /**

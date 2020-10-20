@@ -79,8 +79,14 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * Общий комментарий: решение из Википедии для этой задачи принимается,
  * но приветствуется попытка решить её самостоятельно.
  */
+//Трудоемкость - O(N)
+//Ресурсоемкость - O(1)
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
-    TODO()
+    var res = 0
+    for (i in 1..menNumber) {
+        res = (res + choiceInterval) % i;
+    }
+    return res + 1
 }
 
 /**
@@ -94,8 +100,26 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * Если имеется несколько самых длинных общих подстрок одной длины,
  * вернуть ту из них, которая встречается раньше в строке first.
  */
+//Трудоемкость - O(first.length * second.length)
+//Ресурсоемкость - O(first.length * second.length)
 fun longestCommonSubstring(first: String, second: String): String {
-    TODO()
+    if (first == "" || second == "") return ""
+    var maxLength = 0
+    var maxIndex = 0
+    val matrix = Array(first.length) { IntArray(second.length) }
+    for (i in first.indices) {
+        for (j in second.indices) {
+            if (first[i] == second[j]) {
+                if (i == 0 || j == 0) matrix[i][j] = 1
+                else matrix[i][j] = matrix[i - 1][j - 1] + 1
+                if (matrix[i][j] > maxLength) {
+                    maxLength = matrix[i][j]
+                    maxIndex = i
+                }
+            }
+        }
+    }
+    return first.substring(maxIndex - maxLength + 1..maxIndex)
 }
 
 /**
@@ -108,6 +132,28 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Справка: простым считается число, которое делится нацело только на 1 и на себя.
  * Единица простым числом не считается.
  */
+//Трудоемкость - O(N*log(log(N)))
+//Ресурсоемкость - O(N)
 fun calcPrimesNumber(limit: Int): Int {
-    TODO()
+    if (limit <= 1) return 0
+    if (limit == 2) return 1
+    val grid = IntArray(limit + 1)
+    grid[1] = 0
+    var i = 2
+    while (i <= limit) {
+        grid[i] = 1
+        i++
+    }
+    i = 2
+    while (i * i <= limit) {
+        if (grid[i] == 1) {
+            var j = i * i
+            while (j <= limit) {
+                grid[j] = 0
+                j += i
+            }
+        }
+        i++
+    }
+    return grid.sum()
 }

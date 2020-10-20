@@ -140,17 +140,7 @@ fun sortTemperatures(inputName: String, outputName: String) {
     File(outputName).bufferedWriter().use { writer ->
         sortedTemp.forEach {
             writer.write(
-                when (it) {
-                    in 2730..2739 -> ("0." + (it - minLimit).toString()
-                        .last() + "\n"
-                            )
-                    in 2721..2729 -> ("-0." + (it - minLimit).toString()
-                        .last() + "\n"
-                            )
-                    else -> ((it - minLimit).toString()
-                        .take((it - minLimit).toString().lastIndex) + "." + (it - minLimit).toString()
-                        .last() + "\n")
-                }
+                ((it - minLimit).toDouble() / 10).toString() + "\n"
             )
         }
     }

@@ -14,6 +14,8 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
 
     override var size: Int = 0
 
+    private object REMOVED
+
     /**
      * Индекс в таблице, начиная с которого следует искать данный элемент
      */
@@ -51,7 +53,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         val startingIndex = element.startingIndex()
         var index = startingIndex
         var current = storage[index]
-        while (current != null) {
+        while (current != null && current != REMOVED) {
             if (current == element) {
                 return false
             }
@@ -75,8 +77,23 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя
      */
+
+    //Трудоемкость - O(capacity) в худшем случае, O(1) в лучшем
+    //Ресурсоемкость - O(1)
     override fun remove(element: T): Boolean {
-        TODO("not implemented")
+        val startingIndex = element.startingIndex()
+        var index = startingIndex
+        var current = storage[index]
+        while (current != null) {
+            if (current == element) {
+                storage[index] = REMOVED
+                size--
+                return true
+            }
+            index = (index + 1) % capacity
+            current = storage[index]
+        }
+        return false
     }
 
     /**
@@ -89,7 +106,44 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя (сложная, если поддержан и remove тоже)
      */
-    override fun iterator(): MutableIterator<T> {
-        TODO("not implemented")
+    override fun iterator(): MutableIterator<T> = SetIterator()
+
+    private inner class SetIterator : MutableIterator<T> {
+        var numOfNext = size
+        var index = 0
+        var removeWasAlreadyCalled = false
+        var nextWasAlreadyCalled = false
+
+        //Трудоемкость - O(1)
+        //Ресурсоемкость - O(1)
+        override fun hasNext(): Boolean = numOfNext != 0
+
+        //Трудоемкость - O(1) в лучшем, O(capacity) в худшем случае
+        //Ресурсоемкость - O(1)
+        override fun next(): T {
+            if (!hasNext()) throw IllegalStateException()
+            while (storage[index] == null || storage[index] == REMOVED) {
+                index++
+            }
+            val element = storage[index] as T
+            index++
+            numOfNext--
+            nextWasAlreadyCalled = true
+            removeWasAlreadyCalled = false
+            return element
+        }
+
+        //Трудоемкость - O(1)
+        //Ресурсоемкость - O(1)
+        override fun remove() {
+            if ((!nextWasAlreadyCalled) || (removeWasAlreadyCalled)) throw IllegalStateException()
+            storage[index - 1] = REMOVED
+            size--
+            removeWasAlreadyCalled = true
+            nextWasAlreadyCalled = false
+        }
+
     }
+
+
 }

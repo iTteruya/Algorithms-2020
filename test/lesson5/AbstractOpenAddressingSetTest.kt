@@ -74,6 +74,11 @@ abstract class AbstractOpenAddressingSetTest {
                     expectedSize, openAddressingSet.size,
                     "The size of the set is not as expected."
                 )
+
+                val third = 12.7
+                assertFalse(
+                    openAddressingSet.remove(third), "An element that can't be in the set was removed"
+                )
             }
         }
     }
@@ -115,6 +120,17 @@ abstract class AbstractOpenAddressingSetTest {
             )
             assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
                 openAddressingSetIter.next()
+            }
+
+            val check = "check"
+            val check1 = "check1"
+            val openAddressingSet1 = KtOpenAddressingSet<String>(2)
+            openAddressingSet1.add(check)
+            openAddressingSet1.add(check1)
+            openAddressingSet1.remove(check)
+            val openAddressingSetIterator1 = openAddressingSet1.iterator()
+            assertFalse("next() returned a removed element") {
+                openAddressingSetIterator1.next() == check
             }
             println("All clear!")
         }
@@ -172,6 +188,16 @@ abstract class AbstractOpenAddressingSetTest {
                     controlSet.contains(element),
                     "Open addressing set has the element $element that is not in control set."
                 )
+            }
+
+            val check = "check"
+            val openAddressingSet1 = KtOpenAddressingSet<String>(2)
+            openAddressingSet1.add(check)
+            val openAddressingSetIterator1 = openAddressingSet1.iterator()
+            assertFailsWith<IllegalStateException>("An element was supposedly removed twice.") {
+                openAddressingSetIterator1.next()
+                openAddressingSetIterator1.remove()
+                openAddressingSetIterator1.remove()
             }
             println("All clear!")
         }

@@ -1,11 +1,14 @@
 package lesson4
 
+import java.lang.IllegalStateException
+import java.util.*
+
 /**
  * Префиксное дерево для строк
  */
 class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
-    private class Node {
+    class Node {
         val children: MutableMap<Char, Node> = linkedMapOf()
     }
 
@@ -20,6 +23,7 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
     }
 
     private fun String.withZero() = this + 0.toChar()
+
 
     private fun findNode(element: String): Node? {
         var current = root
@@ -53,10 +57,30 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
     }
 
     override fun remove(element: String): Boolean {
-        val current = findNode(element) ?: return false
-        if (current.children.remove(0.toChar()) != null) {
+        val letters = element.withZero().toCharArray().toMutableList()
+        return delete(letters, root)
+    }
+
+    private fun delete(letters: MutableList<Char>, node: Node): Boolean {
+        var currentNode = node
+        if (letters.isEmpty()) {
+            if (currentNode.children.isNotEmpty()) {
+                return false
+            }
             size--
             return true
+        }
+        if (currentNode.children[(letters[0])] == null) {
+            return false
+        } else currentNode = node.children[letters[0]]!!
+        val char = letters[0]
+        letters.removeAt(0)
+
+        val wordCanBeDeleted = delete(letters, currentNode)
+
+        if (wordCanBeDeleted) {
+            node.children.remove(char)
+            return node.children.keys.isEmpty()
         }
         return false
     }
@@ -68,8 +92,52 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
      *
      * Сложная
      */
-    override fun iterator(): MutableIterator<String> {
-        TODO()
+    override fun iterator(): MutableIterator<String> = KtTrieIterator()
+
+    inner class KtTrieIterator : MutableIterator<String> {
+        private var queue = LinkedList<String>()
+        private var removeWasAlreadyCalled = false
+        private var nextWasAlreadyCalled = false
+        private var lastWord: String? = null
+
+
+        init {
+            if (root.children.keys.isNotEmpty()) {
+                val word = LinkedList<Char>()
+                root.children.keys.forEach { getWords(root, it, word) }
+            }
+        }
+
+        private fun getWords(parentNode: Node, parent: Char, letters: LinkedList<Char>) {
+            val currentNode = parentNode.children[parent]!!
+            val word = LinkedList<Char>()
+            word.addAll(letters)
+            if (currentNode.children.isEmpty() && parent.toInt() == 0) {
+                queue.add(word.joinToString(""))
+            } else {
+                word.add(parent)
+                currentNode.children.keys.forEach { getWords(currentNode, it, word) }
+            }
+        }
+
+        override fun hasNext(): Boolean {
+            return (queue.isNotEmpty())
+        }
+
+        override fun next(): String {
+            if (!hasNext()) throw IllegalStateException()
+            nextWasAlreadyCalled = true
+            removeWasAlreadyCalled = false
+            lastWord = queue.peek()
+            return queue.poll()
+        }
+
+        override fun remove() {
+            if ((!nextWasAlreadyCalled) || (removeWasAlreadyCalled)) throw IllegalStateException()
+            remove(lastWord)
+            removeWasAlreadyCalled = true
+            nextWasAlreadyCalled = false
+        }
     }
 
 }

@@ -61,6 +61,7 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
         return delete(letters, root)
     }
 
+    //Трудоемкость - O(N)
     private fun delete(letters: MutableList<Char>, node: Node): Boolean {
         var currentNode = node
         if (letters.isEmpty()) {
@@ -108,6 +109,10 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             }
         }
 
+        //Трудоемкость - O(N)
+        //Ресурсоемкость - O(N*M)
+        //N - суммарное количество букв в дереве
+        //M - количество слов в дереве
         private fun getWords(parentNode: Node, parent: Char, letters: LinkedList<Char>) {
             val currentNode = parentNode.children[parent]!!
             val word = LinkedList<Char>()
@@ -120,10 +125,12 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             }
         }
 
+        //Трудоемкость - O(1)
         override fun hasNext(): Boolean {
             return (queue.isNotEmpty())
         }
 
+        //Трудоемкость - O(1)
         override fun next(): String {
             if (!hasNext()) throw IllegalStateException()
             nextWasAlreadyCalled = true
@@ -132,6 +139,7 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             return queue.poll()
         }
 
+        //Трудоемкость - O(N)
         override fun remove() {
             if ((!nextWasAlreadyCalled) || (removeWasAlreadyCalled)) throw IllegalStateException()
             remove(lastWord)

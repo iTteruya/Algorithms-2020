@@ -79,7 +79,6 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      */
 
     //Трудоемкость - O(capacity) в худшем случае, O(1) в лучшем
-    //Ресурсоемкость - O(1)
     override fun remove(element: T): Boolean {
         val startingIndex = element.startingIndex()
         var index = startingIndex
@@ -115,11 +114,9 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         var nextWasAlreadyCalled = false
 
         //Трудоемкость - O(1)
-        //Ресурсоемкость - O(1)
         override fun hasNext(): Boolean = numOfNext != 0
 
         //Трудоемкость - O(1) в лучшем, O(capacity) в худшем случае
-        //Ресурсоемкость - O(1)
         override fun next(): T {
             if (!hasNext()) throw IllegalStateException()
             while (storage[index] == null || storage[index] == REMOVED) {
@@ -134,7 +131,6 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         }
 
         //Трудоемкость - O(1)
-        //Ресурсоемкость - O(1)
         override fun remove() {
             if ((!nextWasAlreadyCalled) || (removeWasAlreadyCalled)) throw IllegalStateException()
             storage[index - 1] = REMOVED

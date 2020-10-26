@@ -107,6 +107,15 @@ abstract class AbstractTrieTest {
             assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
                 trieIter.next()
             }
+
+            val newTrie = create()
+            newTrie.add("check")
+            newTrie.add("null")
+            newTrie.remove("check")
+            val newTrieIterator = newTrie.iterator()
+            assertFalse("next() returned a removed element") {
+                newTrieIterator.next() == "check"
+            }
             println("All clear!")
         }
     }
@@ -167,6 +176,16 @@ abstract class AbstractTrieTest {
                     controlSet.contains(element),
                     "Trie set has the element $element that is not in control set."
                 )
+            }
+
+            val newTrie = create()
+            newTrie.add("check")
+            newTrie.add("null")
+            val newTrieIterator = newTrie.iterator()
+            assertFailsWith<IllegalStateException>("An element was supposedly removed twice.") {
+                newTrieIterator.next()
+                newTrieIterator.remove()
+                newTrieIterator.remove()
             }
             println("All clear!")
         }

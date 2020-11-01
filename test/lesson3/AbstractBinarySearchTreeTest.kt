@@ -160,6 +160,14 @@ abstract class AbstractBinarySearchTreeTest {
                     "The tree doesn't have the element $element from the control set."
                 )
             }
+
+            val newBinarySet = create()
+            newBinarySet.add(10)
+            newBinarySet.add(12)
+            assertFalse(
+                newBinarySet.remove(5),
+                "An element that wasn't in the tree was supposedly removed"
+            )
             println("All clear!")
         }
     }
@@ -270,7 +278,17 @@ abstract class AbstractBinarySearchTreeTest {
                     "The tree has the element $element that is not in control set."
                 )
             }
-            println("All clear!")
+
+            val newBinarySet = create()
+            newBinarySet.add(10)
+            newBinarySet.add(12)
+            val newBinarySetIterator = newBinarySet.iterator()
+            assertFailsWith<IllegalStateException>("An element was supposedly removed twice.") {
+                newBinarySetIterator.next()
+                newBinarySetIterator.remove()
+                newBinarySetIterator.remove()
+                println("All clear!")
+            }
         }
     }
 

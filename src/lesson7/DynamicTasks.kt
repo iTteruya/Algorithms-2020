@@ -2,6 +2,8 @@
 
 package lesson7
 
+import java.lang.StringBuilder
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -14,8 +16,33 @@ package lesson7
  * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
+//Трудоемкость - O(first.length * second.length)
+//Ресурсоемкость - O(first.length * second.length)
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+    val table = Array(first.length + 1) { IntArray(second.length + 1) }
+    for (i in first.length - 1 downTo 0) {
+        for (j in second.length - 1 downTo 0) {
+            if (first[i] == second[j]) {
+                table[i][j] = table[i + 1][j + 1] + 1
+            } else table[i][j] = table[i + 1][j].coerceAtLeast(table[i][j + 1])
+        }
+    }
+    val sb = StringBuilder()
+    var i = 0
+    var j = 0
+    while (i < first.length && j < second.length) {
+        when {
+            first[i] == second[j] -> {
+                sb.append(first[i])
+                i++
+                j++
+            }
+            else -> {
+                if (table[i + 1][j] >= table[i][j + 1]) i++ else j++
+            }
+        }
+    }
+    return sb.toString()
 }
 
 /**
@@ -30,9 +57,33 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
+//Трудоемкость - O(N^2)
+//Ресурсоемкость - O(N)
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    TODO()
+    val size = list.size
+    if (size <= 1) return list
+    val prev = MutableList(size) { -1 }
+    val d = MutableList(size) { 1 }
+    for (i in 0 until size) {
+        for (j in 0 until i) {
+            if (list[j] < list[i] && d[j] + 1 > d[i]) {
+                d[i] = d[j] + 1
+                prev[i] = j
+            }
+        }
+    }
+
+    val length = d.max()
+    var position = d.indexOf(length)
+
+    val answer = mutableListOf<Int>()
+    while (position != -1) {
+        answer.add(0, list[position])
+        position = prev[position]
+    }
+    return answer
 }
+
 
 /**
  * Самый короткий маршрут на прямоугольном поле.

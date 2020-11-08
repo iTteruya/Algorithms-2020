@@ -127,47 +127,6 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
     return answer
 }
 
-fun LIS(list: List<Int>): List<Int> {
-    val size = list.size
-    if (size <= 1) return list
-    val d = MutableList(size + 1) { Int.MAX_VALUE }
-    val pos = MutableList(size + 1) { 0 }
-    val prev = MutableList(size) { 0 }
-    var length = 0
-    pos[0] = -1
-    d[0] = Int.MIN_VALUE
-    for (i in 0 until size) {
-        val j = binarySearchEOG(d, list[i], 0, d.size)
-        if (d[j - 1] < list[i] && list[i] < d[j]) {
-            d[j] = list[i]
-            pos[j] = i
-            prev[i] = pos[j - 1]
-            length = max(length, j)
-        }
-    }
-
-    val answer = mutableListOf<Int>()
-    var p = pos[length]
-    while (p != -1) {
-        answer.add(0, list[p])
-        p = prev[p]
-    }
-    return answer
-}
-
-fun binarySearchEOG(a: List<Int>, key: Int, low: Int, high: Int): Int {
-    var h = high
-    var l = low
-    while (l < h) {
-        val mid = l + (h - l) / 2
-        if (a[mid] < key) {
-            l = mid + 1
-        } else h = mid
-    }
-    return if (h == high) -1 else h
-}
-
-
 /**
  * Самый короткий маршрут на прямоугольном поле.
  * Средняя

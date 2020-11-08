@@ -100,28 +100,41 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
         private var removeWasAlreadyCalled = false
         private var nextWasAlreadyCalled = false
         private var lastWord: String? = null
+        private val letters = LinkedList<Char>()
+        private val nodes = Stack<Node>()
+        private var lastLetter: Char? = null
 
 
         init {
             if (root.children.keys.isNotEmpty()) {
-                val word = LinkedList<Char>()
-                root.children.keys.forEach { getWords(root, it, word) }
+                nodes.add(root)
+                getWord(root, root.children.keys.first())
             }
         }
 
         //Трудоемкость - O(N)
-        //Ресурсоемкость - O(N*M)
-        //N - суммарное количество букв в дереве
-        //M - количество слов в дереве
-        private fun getWords(parentNode: Node, parent: Char, letters: LinkedList<Char>) {
-            val currentNode = parentNode.children[parent]!!
-            val word = LinkedList<Char>()
-            word.addAll(letters)
-            if (currentNode.children.isEmpty() && parent.toInt() == 0) {
-                queue.add(word.joinToString(""))
+        //N - количество букв в слове (может быть меньше, если часть текущего слова входит в следующее)
+        private fun getWord(parentNode: Node, child: Char?) {
+            lastLetter = child
+            if (child == null) {
+                val letter = letters.pollLast()
+                nodes.pop()
+                if (nodes.isNotEmpty()) {
+                    getWord(
+                        nodes.peek(),
+                        nodes.peek().children.keys.toList()
+                            .getOrNull(nodes.peek().children.keys.indexOf(letter) + 1)
+                    )
+                }
             } else {
-                word.add(parent)
-                currentNode.children.keys.forEach { getWords(currentNode, it, word) }
+                val currentNode = parentNode.children[child]!!
+                if (currentNode.children.isEmpty() && child.toInt() == 0) {
+                    queue.add(letters.joinToString(""))
+                } else {
+                    nodes.add(currentNode)
+                    letters.add(child)
+                    getWord(currentNode, currentNode.children.keys.first())
+                }
             }
         }
 
@@ -130,12 +143,16 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             return (queue.isNotEmpty())
         }
 
-        //Трудоемкость - O(1)
         override fun next(): String {
             if (!hasNext()) throw IllegalStateException()
             nextWasAlreadyCalled = true
             removeWasAlreadyCalled = false
             lastWord = queue.peek()
+            getWord(
+                nodes.peek(),
+                nodes.peek().children.keys.toList()
+                    .getOrNull(nodes.peek().children.keys.indexOf(lastLetter) + 1)
+            )
             return queue.poll()
         }
 

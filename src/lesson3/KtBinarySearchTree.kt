@@ -105,6 +105,11 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
     override fun remove(element: T): Boolean {
         val node = find(element)
         if ((node == null) || element.compareTo(node.value) != 0) return false
+        delete(node)
+        return true
+    }
+
+    private fun delete(node: Node<T>) {
         val parent = node.getParent()
 
         fun replace(replacement: Node<T>?) {
@@ -131,16 +136,14 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                     node.right?.left = node.left
                     replace(node.right)
                 } else {
-                    curParent?.left = curChild?.right
+                    curParent.left = curChild?.right
                     curChild?.left = node.left
                     curChild?.right = node.right
                     replace(curChild)
                 }
             }
         }
-
         size--
-        return true
     }
 
     override fun comparator(): Comparator<in T>? =
@@ -150,10 +153,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         BinarySearchTreeIterator()
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
-        var order = Stack<Node<T>>()
-        var curNode = root
-        var removeWasAlreadyCalled = false
-        var nextWasAlreadyCalled = false
+        private var order = Stack<Node<T>>()
+        private var curNode = root
+        private var removeWasAlreadyCalled = false
+        private var nextWasAlreadyCalled = false
 
         private fun getLeftSubtree(node: Node<T>?) {
             if (node != null) {
@@ -220,7 +223,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         //Трудоемкость - O(N)
         override fun remove() {
             if ((!nextWasAlreadyCalled) || (removeWasAlreadyCalled)) throw IllegalStateException()
-            remove(curNode!!.value)
+            delete(curNode!!)
             removeWasAlreadyCalled = true
             nextWasAlreadyCalled = false
         }
